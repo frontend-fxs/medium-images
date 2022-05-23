@@ -2,11 +2,11 @@ const puppeteer = require('puppeteer');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 const domain = process.argv[2] || "https://www.fxstreet.com/";
-const selector = process.argv[3] || "[fxs_name^='highlighted']";
-const attributeName = process.argv[4] || "fxs_name";
+const selector = process.argv[3] || "[src*='_Medium.']";
+const attributeName = process.argv[4] || "src";
 
 const csvWriter = createCsvWriter({
-    path: `data${selector}.csv`,
+    path: `dataMedium.csv`,
     header: [
         { id: 'page', title: 'PAGE' },
         { id: 'attributeValue', title: 'ATTRIBUTE VALUE' },

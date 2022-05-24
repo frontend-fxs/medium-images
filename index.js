@@ -1,14 +1,23 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-const unvisitedUrls = [];
-const visitedUrls = [];
+const RESTART = true;
+
+let unvisitedUrls = [];
+let visitedUrls = [];
 
 try {
     const unvisitedUrlsString = fs.readFileSync("./unvisitedUrls.json", "utf8");
+    const visitedUrlsString = fs.readFileSync("./visitedUrls.json", "utf8");
     unvisitedUrls = JSON.parse(unvisitedUrlsString)
+    visitedUrls = JSON.parse(visitedUrlsString)
 } catch (error) {
     console.log(error);
+}
+
+if(RESTART){
+    unvisitedUrls = [...visitedUrls, ...unvisitedUrls];
+    visitedUrls = [];
 }
 
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;

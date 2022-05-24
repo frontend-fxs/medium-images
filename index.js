@@ -1,4 +1,16 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+
+const unvisitedUrls = [];
+const visitedUrls = [];
+
+try {
+    const unvisitedUrlsString = fs.readFileSync("./unvisitedUrls.json", "utf8");
+    unvisitedUrls = JSON.parse(unvisitedUrlsString)
+} catch (error) {
+    console.log(error);
+}
+
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 const domain = process.argv[2] || "https://www.fxstreet.com/";
@@ -13,9 +25,6 @@ const csvWriter = createCsvWriter({
     ]
 });
 
-
-const unvisitedUrls = [];
-const visitedUrls = [];
 if (!domain) {
     throw "Please provide URL as a first argument";
 }
@@ -49,14 +58,14 @@ async function run(url, selector) {
             return Promise.resolve(Array.from(document.querySelectorAll(selector)).length > 0);
         }, selector);
 
-        const attributes = await page.evaluate((selector,attributeName) => {
+        const attributes = await page.evaluate((selector, attributeName) => {
             return Promise.resolve(
                 Array.from(
                     document.querySelectorAll(selector)).map(
                         element => element.getAttribute(attributeName)
                     )
             );
-        },selector,attributeName);
+        }, selector, attributeName);
 
         if (selectorExists) {
             attributes.map(async (attributeValue) => {
@@ -73,6 +82,7 @@ async function run(url, selector) {
         domainUrls.map(item => {
             if (!visitedUrls.includes(item) && !unvisitedUrls.includes(item)) {
                 unvisitedUrls.push(item);
+                fs.writeFileSync("unvisitedUrls.json", JSON.stringify(unvisitedUrls));
             }
         });
     } catch (error) {
@@ -82,6 +92,7 @@ async function run(url, selector) {
     if (unvisitedUrls.length > 0) {
         const nextUrl = unvisitedUrls.pop();
         visitedUrls.push(nextUrl);
+        fs.writeFileSync("visitedUrls.json", JSON.stringify(visitedUrls));
         await run(nextUrl, selector)
     } else {
         console.log('Exiting process');

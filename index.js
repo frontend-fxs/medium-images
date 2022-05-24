@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-const RESTART = true;
+const RESTART = false;
 
 let unvisitedUrls = [];
 let visitedUrls = [];
